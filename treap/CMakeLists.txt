@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22.1)
-project(strHash)
+project(treap)
 
 # Include directories
 include_directories(${PROJECT_SOURCE_DIR})
