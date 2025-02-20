@@ -1,30 +1,52 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #define DA_INIT_CAP 32
 #define UNDEFINED 0
+
+// TODO: add batch insertions
+typedef struct da_int {
+  int* items;
+  size_t count;
+  size_t capacity;
+} Da_int;
 
 #define DA_INIT(da)				\
   do {						\
     (da)->items = NULL;				\
     (da)->count = 0;				\
-    (da)->capacity = UNDEFINED;				\
+    (da)->capacity = UNDEFINED;			\
   } while(0)					\
 
 // ATTENTION: not checking of overlflowing capacity constraint
-#define DA_ADD(da, el)							\
+#define DA_INSERT(da, el)							\
   do {									\
     if ((da)->count + 1 > (da)->capacity) {				\
       (da)->capacity = (da)->capacity == UNDEFINED ? DA_INIT_CAP : (da)->capacity * 2; \
       (da)->items = realloc((da)->items, sizeof(int) * (da)->capacity);	\
-      if ((da)->items == NULL) {					\
-	exit(-1 && "You don't have enough RAM!\n");				\
-      }									\
+      assert((da)->items != NULL && "You don't have enough RAM!\n");	\
     }									\
     (da)->items[(da)->count] = el;					\
     (da)->count += 1;							\
   } while(0)								
+
+#define DA_INSERT_BATCH(da, els, n)					\
+  do {									\
+    if((da)->count + (n) > (da)->capacity) {				\
+      if((da)->capacity == 0) {						\
+	(da)->capacity = DA_INIT_CAP;					\
+      }									\
+      while ((da)->count + (n) > (da)->capacity) {			\
+	(da)->capacity *= 2;						\
+      }									\
+      (da)->items = realloc((da)->items, sizeof(*(da)->items) * (da)->capacity); \
+      assert((da)->items != NULL && "You don't have enough RAM!\n");	\
+    }									\
+    memcpy((da)->items + (da)->count, (els), sizeof(*(da)->items) * (n)); \
+    (da)->count += (n);							\
+  } while(0)								\
 
 #define DA_REMOVE(da, n)						\
   do {									\
@@ -39,16 +61,12 @@
       }									\
     }									\
   } while(0)								\
-   
-typedef struct da_int {
-  int* items;
-  size_t count;
-  size_t capacity;
-} Da_int;
+
+#define DA_FREE(da) free((da)->items)
 
 void insert_da(Da_int* da, int cnt) {
   for(int i = 0; i < cnt; i++) {
-    DA_ADD(da, i);
+    DA_INSERT(da, i);
   }
 }
 
@@ -92,17 +110,19 @@ void test_initialization() {
   assert(da.items == 0 && "The items is not NULL");
   assert(da.count == 0 && "The count is not zero");
   assert(da.capacity == 0 && "The capacity is not zero");
+
+  DA_FREE(&da);
 }
 
 void test_insertion() {
   Da_int da;
-  size_t sz = 10000;
+  const size_t sz = 10000;
   
   DA_INIT(&da);
 
   insert_da(&da, sz);
   // now the da has sz elements
-  assert(da.items != NULL && "The items should be not NULL");
+  assert(da.items != NULL && "The items should not be NULL");
   assert(da.count == sz && "The count should be 10000");
   // printf("Current capacity is %zu and pow2_exceed is %zu\n", da.capacity, pow2_exceed(da.capacity));
   assert(da.capacity == pow2_exceed(da.count) && "The capacity should be ceil_of_pow2(10000)");
@@ -110,54 +130,77 @@ void test_insertion() {
   for(size_t i = 0; i < sz; i++) {
     assert(da.items[i] == i && "The item current value is not what expected\n");
   }
+
+  DA_FREE(&da);
 }
 
 void test_insertion_remotion() {
   Da_int da;
-  size_t sz = 10000;
+  const size_t sz = 10000;
   
   DA_INIT(&da);
 
   insert_da(&da, sz);
-  // now the da has sz elements
-  assert(da.items != NULL && "The items should be not NULL");
-  assert(da.count == sz && "The count should be 1");
-  // printf("Current capacity is %zu and pow2_exceed is %zu\n", da.capacity, pow2_exceed(da.capacity));
+  assert(da.items != NULL && "The items should not be NULL");
+  assert(da.count == sz && "The count should be sz");
   assert(da.capacity == pow2_exceed(da.count) && "The capacity should be ceil_of_pow2(10000)");
   
   DA_REMOVE(&da, sz);
-  assert(da.items != NULL && "The items should be not NULL");
+  assert(da.items != NULL && "The items should not be NULL");
   assert(da.count == 0 && "The count should be 0");
   assert(da.capacity == DA_INIT_CAP && "The capacity should be DA_INIT_CAP");
+
+  DA_FREE(&da);
 }
 
 void test_insertion_remotion_control() {
   Da_int da;
-  size_t sz = 10000;
+  const size_t sz = 10000;
   
   DA_INIT(&da);
 
   insert_da(&da, sz);
   // now the da has sz elements
-  assert(da.items != NULL && "The items should be not NULL");
+  assert(da.items != NULL && "The items should not be NULL");
   assert(da.count == sz && "The count should be sz");
-   assert(da.capacity == pow2_exceed(da.count) && "The capacity should be ceil_of_pow2(10000)");
+  assert(da.capacity == pow2_exceed(da.count) && "The capacity should be ceil_of_pow2(10000)");
   
   DA_REMOVE(&da, sz / 2);
-  assert(da.items != NULL && "The items should be not NULL");
+  assert(da.items != NULL && "The items should not be NULL");
   assert(da.count == sz / 2 && "The count should be sz / 2");
   assert(da.capacity == pow2_exceed(da.count) && "The capacity should be ceil_of_pow2(sz / 2)");
   
   for(size_t i = 0; i < sz / 2; i++) {
-    assert(da.items[i] == i && "The item current value is not what expected\n");
+    assert(da.items[i] == i && "The item current value is not what expected");
   }
+
+  DA_FREE(&da);
 }  
+
+void test_insertion_batch() {
+  Da_int da;
+  const size_t sz = 6;
+    
+  DA_INIT(&da);
+  DA_INSERT_BATCH(&da, ((int[]){0, 1, 2, 3, 4, 5}), sz);
+  
+  assert(da.items != NULL && "The items should not be NULL");
+  assert(da.count == sz && "The count should be sz");
+  assert(da.capacity == DA_INIT_CAP && "The capacity should be ceil_of_pow2(5)");
+
+  for(int i = 0; i < da.count; i++) {
+    assert(i == da.items[i] && "The item current value is not what expected");
+  }
+  
+  DA_FREE(&da);
+}
 
 int main() {
   test_initialization();
   test_insertion();
   test_insertion_remotion();
   test_insertion_remotion_control();
+  test_insertion_batch();
   printf("All the assertion have been verified!\n");
   
   return 0;
