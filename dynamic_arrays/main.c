@@ -6,12 +6,17 @@
 #define DA_INIT_CAP 32
 #define UNDEFINED 0
 
-// TODO: add batch insertions
 typedef struct da_int {
   int* items;
   size_t count;
   size_t capacity;
 } Da_int;
+
+typedef struct da_cstr {
+  char** items;
+  size_t count;
+  size_t capacity;
+} Da_cstr;
 
 #define DA_INIT(da)				\
   do {						\
@@ -195,12 +200,30 @@ void test_insertion_batch() {
   DA_FREE(&da);
 }
 
+void test_insertion_batch_strings() {
+  Da_cstr da;
+  const size_t sz = 3;
+  const char* str[] = {"ciao", "come", "va"};
+
+  DA_INIT(&da);
+  DA_INSERT_BATCH(&da, str, sz);
+
+  for(int i = 0; i < sz; i++) {
+    if(strcmp(str[i], da.items[i]) != 0) {
+      assert(0 && "The item current string is not what expected");
+    }
+  }
+
+  DA_FREE(&da);
+}
+
 int main() {
   test_initialization();
   test_insertion();
   test_insertion_remotion();
   test_insertion_remotion_control();
   test_insertion_batch();
+  test_insertion_batch_strings();
   printf("All the assertion have been verified!\n");
   
   return 0;
