@@ -3,8 +3,9 @@
 #include <assert.h>
 #include <string.h>
 
+#ifndef DA_INIT_CAP
 #define DA_INIT_CAP 32
-#define UNDEFINED 0
+#endif // DA_INIT_CAP
 
 typedef struct da_int {
   int* items;
@@ -18,18 +19,11 @@ typedef struct da_cstr {
   size_t capacity;
 } Da_cstr;
 
-#define DA_INIT(da)				\
-  do {						\
-    (da)->items = NULL;				\
-    (da)->count = 0;				\
-    (da)->capacity = UNDEFINED;			\
-  } while(0)					\
-
 // ATTENTION: not checking of overlflowing capacity constraint
-#define DA_INSERT(da, el)							\
+#define DA_INSERT(da, el)						\
   do {									\
     if ((da)->count + 1 > (da)->capacity) {				\
-      (da)->capacity = (da)->capacity == UNDEFINED ? DA_INIT_CAP : (da)->capacity * 2; \
+      (da)->capacity = (da)->capacity == 0 ? DA_INIT_CAP : (da)->capacity * 2; \
       (da)->items = realloc((da)->items, sizeof(int) * (da)->capacity);	\
       assert((da)->items != NULL && "You don't have enough RAM!\n");	\
     }									\
@@ -109,8 +103,7 @@ size_t pow2_exceed(size_t x) {
 }
 
 void test_initialization() {
-  Da_int da;
-  DA_INIT(&da);
+  Da_int da = {0};
   
   assert(da.items == 0 && "The items is not NULL");
   assert(da.count == 0 && "The count is not zero");
@@ -120,11 +113,9 @@ void test_initialization() {
 }
 
 void test_insertion() {
-  Da_int da;
+  Da_int da = {0};
   const size_t sz = 10000;
   
-  DA_INIT(&da);
-
   insert_da(&da, sz);
   // now the da has sz elements
   assert(da.items != NULL && "The items should not be NULL");
@@ -140,11 +131,9 @@ void test_insertion() {
 }
 
 void test_insertion_remotion() {
-  Da_int da;
+  Da_int da = {0};
   const size_t sz = 10000;
   
-  DA_INIT(&da);
-
   insert_da(&da, sz);
   assert(da.items != NULL && "The items should not be NULL");
   assert(da.count == sz && "The count should be sz");
@@ -159,11 +148,9 @@ void test_insertion_remotion() {
 }
 
 void test_insertion_remotion_control() {
-  Da_int da;
+  Da_int da = {0};
   const size_t sz = 10000;
   
-  DA_INIT(&da);
-
   insert_da(&da, sz);
   // now the da has sz elements
   assert(da.items != NULL && "The items should not be NULL");
@@ -183,10 +170,9 @@ void test_insertion_remotion_control() {
 }  
 
 void test_insertion_batch() {
-  Da_int da;
+  Da_int da = {0};
   const size_t sz = 6;
     
-  DA_INIT(&da);
   DA_INSERT_BATCH(&da, ((int[]){0, 1, 2, 3, 4, 5}), sz);
   
   assert(da.items != NULL && "The items should not be NULL");
@@ -201,11 +187,10 @@ void test_insertion_batch() {
 }
 
 void test_insertion_batch_strings() {
-  Da_cstr da;
+  Da_cstr da = {0};
   const size_t sz = 3;
   const char* str[] = {"ciao", "come", "va"};
 
-  DA_INIT(&da);
   DA_INSERT_BATCH(&da, str, sz);
 
   for(int i = 0; i < sz; i++) {
