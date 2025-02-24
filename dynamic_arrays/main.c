@@ -24,7 +24,7 @@ typedef struct da_cstr {
   do {									\
     if ((da)->count + 1 > (da)->capacity) {				\
       (da)->capacity = (da)->capacity == 0 ? DA_INIT_CAP : (da)->capacity * 2; \
-      (da)->items = realloc((da)->items, sizeof(int) * (da)->capacity);	\
+      (da)->items = realloc((da)->items, sizeof(*(da)->items) * (da)->capacity); \
       assert((da)->items != NULL && "You don't have enough RAM!\n");	\
     }									\
     (da)->items[(da)->count] = el;					\
@@ -54,7 +54,7 @@ typedef struct da_cstr {
       while ((da)->count < (da)->capacity / 2 && (da)->capacity != DA_INIT_CAP) { \
 	(da)->capacity /= 2;						\
       }									\
-      (da)->items = realloc((da)->items, sizeof(int) * (da)->capacity);	\
+      (da)->items = realloc((da)->items, sizeof(*(da)->items) * (da)->capacity); \
       if ((da)->items == NULL) {					\
 	exit(-1 && "You don't have enough RAM!\n");			\
       }									\
