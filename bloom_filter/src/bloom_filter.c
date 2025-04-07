@@ -20,3 +20,18 @@ void add_item_bloom_filter(bloom_filter* bf, const void* data) {
     set_bv(&bf->bv[i], bf->hash_functions[i](data));
   }
 }
+
+bool check_item_bloom_filter(bloom_filter* bf, const void* data) {
+  bool result = false;
+  for(size_t i = 0; i < bf->k; i++) {
+    result |= access_bv(&bf->bv[i], bf->hash_functions[i](data));
+  }
+  return result;
+}
+
+void free_bloom_filter(bloom_filter* bf) {
+  for(size_t i = 0; i < bf->k; i++) {
+    free_bv(&bf->bv[i]);
+  }
+  free(bf->bv);
+}

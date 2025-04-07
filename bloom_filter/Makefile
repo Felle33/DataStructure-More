@@ -1,7 +1,8 @@
 CC:=gcc
 CFLAGS:=-Wall -Wextra -ggdb
-SRC:=test.c bloom_filter.c bit_vector.c hash_function.c
+SRC:=src/test.c src/bloom_filter.c src/bit_vector.c src/hash_function.c
+INCLUDE_DIR:=include
 TARGET:=bloom_filter
 
 $(TARGET): $(SRC) $(HEADERS)
-	$(CC) $(CFLAGS) $(SRC) -I. -o build/$(TARGET)
+	$(CC) $(CFLAGS) $(SRC) -I$(INCLUDE_DIR) -o build/$(TARGET)
