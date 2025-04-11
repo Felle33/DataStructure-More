@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <limits.h>
 
-static const size_t MAX_HEIGHT = 2;
+static const size_t MAX_HEIGHT = 20;
 
 skip_list* init_skip_list() {
   srand(time(NULL));

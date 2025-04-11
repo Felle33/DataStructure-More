@@ -1,5 +1,5 @@
 CC:=gcc
-CFLAGS:=-Wall -Wextra -ggdb
+CFLAGS:=-Wall -Wextra -ggdb -O0
 SRC:=main.c skip_list.c
 INCLUDE_DIR:=.
 TARGET:=skip_list
