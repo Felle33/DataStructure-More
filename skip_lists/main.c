@@ -35,72 +35,71 @@ int cmp(const void* a, const void* b) {
 }
 
 int main(void) {
-  skip_list* sl = init_skip_list();
-
-  srand(time(NULL));
-  
   clock_t start, end;
   double time_passed;
+  int to_search_arr[DIM], not_to_search_arr[DIM];
+  
+  srand(time(NULL));
+  skip_list* sl = init_skip_list();
+
   start = clock();
-  int elements[DIM];
   for(size_t i = 0; i < DIM; i++) {
-    elements[i] = rand();
-    insert_skip_list(sl, elements[i]);
+    to_search_arr[i] = rand();
+  }
+  qsort(to_search_arr, DIM, sizeof(int), cmp);
+
+  for(size_t i = 0; i < DIM; i++) {
+    int el = rand();
+    while(in_list(to_search_arr, DIM, el)) {
+      el = rand();
+    }
+    not_to_search_arr[i] = el;
+  }
+  end = clock();  
+  time_passed = (double)(end - start) / CLOCKS_PER_SEC;
+
+  printf("Initialized the arrays with DIM=%ld in %.3f seconds\n\n", DIM, time_passed);
+
+  start = clock();
+  for(size_t i = 0; i < DIM; i++) {
+    insert_skip_list(sl, to_search_arr[i]);
   }
   end = clock();
   time_passed = (double)(end - start) / CLOCKS_PER_SEC;
 
   printf("Insertion of %ld elements in %.3f seconds\n", DIM, time_passed);
 #ifdef DEBUG
-  print_list(elements, DIM);
+  print_list(to_search_arr, DIM);
 #endif
-
-  start = clock();
-  qsort(elements, DIM, sizeof(int), cmp);
-  end = clock();
-  time_passed = (double)(end - start) / CLOCKS_PER_SEC;
-
-  printf("Sorting the array in %.3f seconds\n", time_passed);
   
-#ifdef DEBUG
-  print_list(elements, DIM)
-#endif
-
   for(size_t test = 1; test <= NUM_TESTS; test++) {
     bool search_mem_elements = rand() % 2;
     printf("\n[Test number %ld]: %s\n", test, search_mem_elements ? "Searching memorized elements" : "Not searching for memorized elements");
     
-    size_t elements_searched = 0;
     start = clock();
 
     if(search_mem_elements) {
-      elements_searched = DIM;
       for(size_t i = 0; i < DIM; i++) {
 #ifdef DEBUG
-	printf("Searching the number in the array %d\n", elements[i]);
+	printf("Searching the number in the array %d\n", to_search_arr[i]);
 #endif
-	assert(search_skip_list(sl, elements[i]));
+	assert(search_skip_list(sl, to_search_arr[i]));
       }
     } else {
       for(size_t i = 0; i < DIM; i++) {
-	int el = rand();
-      
 #ifdef DEBUG
-	printf("Searching the number %d\n", elements[i]);
+	printf("Searching the number (that does not exists) %d\n", elements[i]);
 #endif
-	if(!in_list(elements, DIM, el)) {
-	  elements_searched += 1;
-	  assert(!search_skip_list(sl, el));
-	}
+	assert(!search_skip_list(sl, not_to_search_arr[i]));
       }
     }
 
     end = clock();
     time_passed = (double)(end - start) / CLOCKS_PER_SEC;
   
-    printf("Search of %ld/%ld %s elements in %.3f seconds\n", elements_searched, DIM, search_mem_elements ? "present" : "not present", time_passed); 
+    printf("Search of %s elements in %.3f seconds\n", search_mem_elements ? "present" : "not present", time_passed); 
   }
 
-  printf("\n\nAll test have passed!\n");
+  printf("\n\nAll tests have passed!\n");
   return 0;
 }
