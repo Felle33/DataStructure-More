@@ -1,0 +1,39 @@
+gcc -Wall -Wextra -ggdb -O0 main.c skip_list.c arena.c -I. -DUSE_ARENA_ALLOC -o build/skip_list
+Initialized the arrays with DIM=1000000 in 0.902 seconds
+
+Insertion of 1000000 elements in 1.006 seconds
+
+[Test number 1]: Searching memorized elements
+Search of present elements in 0.893 seconds
+
+[Test number 2]: Not searching for memorized elements
+Search of not present elements in 1.641 seconds
+
+[Test number 3]: Not searching for memorized elements
+Search of not present elements in 1.624 seconds
+
+[Test number 4]: Searching memorized elements
+Search of present elements in 0.871 seconds
+
+
+All tests have passed!
+
+gcc -Wall -Wextra -ggdb -O0 main.c skip_list.c arena.c -I.  -o build/skip_list
+Initialized the arrays with DIM=1000000 in 0.892 seconds
+
+Insertion of 1000000 elements in 1.054 seconds
+
+[Test number 1]: Searching memorized elements
+Search of present elements in 0.446 seconds
+
+[Test number 2]: Not searching for memorized elements
+Search of not present elements in 2.186 seconds
+
+[Test number 3]: Searching memorized elements
+Search of present elements in 0.473 seconds
+
+[Test number 4]: Searching memorized elements
+Search of present elements in 0.465 seconds
+
+
+All tests have passed!
