@@ -25,5 +25,6 @@ typedef struct skip_list_hdr {
 skip_list_hdr* init_skip_list();
 void insert_skip_list(skip_list_hdr* hdr, int el);
 bool search_skip_list(skip_list_hdr* hdr, int el);
+void free_skip_list(skip_list_hdr* hdr);
 
 #endif // _SKIP_LIST_

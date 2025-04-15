@@ -20,13 +20,15 @@ skip_list_hdr* init_skip_list() {
   skip_list* sl;
   skip_list* bottom_layer = NULL;
   for(size_t i = 0; i < MAX_HEIGHT; i++) {
-    sl = malloc(sizeof(skip_list));
-    
+#ifdef USE_ARENA_ALLOC
     if(i < SKIP_LIST_ARENAS_NUM - 1) {
       sl = arena_alloc(&hdr->arenas[i], sizeof(skip_list));
     } else {
       sl = arena_alloc(&hdr->arenas[SKIP_LIST_ARENAS_NUM - 1], sizeof(skip_list));
     }
+#else
+    sl = malloc(sizeof(skip_list));
+#endif
 
     sl->val = INT_MIN;
     sl->next = NULL;
@@ -190,4 +192,30 @@ void insert_skip_list(skip_list_hdr* hdr, int el) {
 #else
   insert_skip_list_helper(hdr->head, el, &has_bottom_layer, &bottom_node);
 #endif // USE_ARENA_ALLOC
+}
+
+static void free_list(skip_list* sl) {
+  while(sl != NULL) {
+    skip_list* next = sl->next;
+    free(sl);
+    sl = next;
+  }
+}
+
+void free_skip_list(skip_list_hdr* hdr) {
+#ifdef USE_ARENA_ALLOC
+  for(size_t i = 0; i < SKIP_LIST_ARENAS_NUM; i++) {
+    arena_free(&hdr->arenas[i]);
+  }
+#else
+  skip_list* sl = hdr->head;
+  while(sl != NULL) {
+    free_list(sl->next);
+
+    skip_list* bottom = sl->bottom_layer;
+    free(sl);
+    sl = bottom;
+  }
+#endif
+  free(hdr);
 }

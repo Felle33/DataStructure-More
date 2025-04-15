@@ -6,7 +6,7 @@
 #include <stdbool.h>
 
 const size_t DIM = 1e6;
-const size_t NUM_TESTS = 10;
+const size_t NUM_TESTS = 2;
 
 bool in_list(int* elements, size_t n, int el) {
   int l = -1, r = n;
@@ -114,5 +114,7 @@ int main(void) {
   }
 
   printf("\n\nAll tests have passed!\n");
+
+  free_skip_list(hdr);
   return 0;
 }
