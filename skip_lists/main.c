@@ -5,8 +5,8 @@
 #include <time.h>
 #include <stdbool.h>
 
-const size_t DIM = 1000000;
-const size_t NUM_TESTS = 4;
+const size_t DIM = 1e6;
+const size_t NUM_TESTS = 10;
 
 bool in_list(int* elements, size_t n, int el) {
   int l = -1, r = n;
@@ -71,7 +71,20 @@ int main(void) {
 #ifdef DEBUG
   print_list(to_search_arr, DIM);
 #endif
-  
+
+  // Assert that the distances between nodes is similar in the last layer
+  /* skip_list* sl = hdr->head; */
+  /* while(sl->bottom_layer != NULL) { */
+  /*   sl = sl->bottom_layer; */
+  /* } */
+  /* while(sl->next != NULL) { */
+  /*   size_t sz_node = sizeof(skip_list); */
+  /*   //    printf("Difference between nodes %ld\n", (sl->next - sl)); */
+  /*   printf("Address of the node 0x%p\n", sl); */
+  /*   //    assert((sl->next - sl) == (long int)sz_node && "The nodes are too distant"); */
+  /*   sl = sl->next; */
+  /* } */
+
   for(size_t test = 1; test <= NUM_TESTS; test++) {
     bool search_mem_elements = rand() % 2;
     printf("\n[Test number %ld]: %s\n", test, search_mem_elements ? "Searching memorized elements" : "Not searching for memorized elements");

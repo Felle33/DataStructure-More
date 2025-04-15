@@ -21,6 +21,13 @@ skip_list_hdr* init_skip_list() {
   skip_list* bottom_layer = NULL;
   for(size_t i = 0; i < MAX_HEIGHT; i++) {
     sl = malloc(sizeof(skip_list));
+    
+    if(i < SKIP_LIST_ARENAS_NUM - 1) {
+      sl = arena_alloc(&hdr->arenas[i], sizeof(skip_list));
+    } else {
+      sl = arena_alloc(&hdr->arenas[SKIP_LIST_ARENAS_NUM - 1], sizeof(skip_list));
+    }
+
     sl->val = INT_MIN;
     sl->next = NULL;
     sl->bottom_layer = bottom_layer;
