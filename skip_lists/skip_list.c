@@ -194,6 +194,7 @@ void insert_skip_list(skip_list_hdr* hdr, int el) {
 #endif // USE_ARENA_ALLOC
 }
 
+#ifndef USE_ARENA_ALLOC
 static void free_list(skip_list* sl) {
   while(sl != NULL) {
     skip_list* next = sl->next;
@@ -201,6 +202,7 @@ static void free_list(skip_list* sl) {
     sl = next;
   }
 }
+#endif
 
 void free_skip_list(skip_list_hdr* hdr) {
 #ifdef USE_ARENA_ALLOC
@@ -216,6 +218,6 @@ void free_skip_list(skip_list_hdr* hdr) {
     free(sl);
     sl = bottom;
   }
-#endif
+#endif // USE_ARENA_ALLOC
   free(hdr);
 }
