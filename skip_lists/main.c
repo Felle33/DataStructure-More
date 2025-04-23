@@ -1,9 +1,16 @@
-#include "skip_list.h"
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+
+#define SKIP_LIST_IMPLEMENTATION
+#define TYPE int
+#define TYPED_NAME(x) x##_int
+#include "skip_list.h"
+#undef SKIP_LIST_IMPLEMENTATION
+#undef TYPE
+#undef TYPED_NAME
 
 const size_t DIM = 1e6;
 const size_t NUM_TESTS = 2;
@@ -40,7 +47,7 @@ int main(void) {
   int to_search_arr[DIM], not_to_search_arr[DIM];
   
   srand(time(NULL));
-  skip_list_hdr* hdr = init_skip_list();
+  skip_list_hdr_int* hdr = init_skip_list_int(INT_MIN);
 
   start = clock();
   for(size_t i = 0; i < DIM; i++) {
@@ -62,7 +69,7 @@ int main(void) {
 
   start = clock();
   for(size_t i = 0; i < DIM; i++) {
-    insert_skip_list(hdr, to_search_arr[i]);
+    insert_skip_list_int(hdr, to_search_arr[i]);
   }
   end = clock();
   time_passed = (double)(end - start) / CLOCKS_PER_SEC;
@@ -96,14 +103,14 @@ int main(void) {
 #ifdef DEBUG
 	printf("Searching the number in the array %d\n", to_search_arr[i]);
 #endif
-	assert(search_skip_list(hdr, to_search_arr[i]));
+	assert(search_skip_list_int(hdr, to_search_arr[i]));
       }
     } else {
       for(size_t i = 0; i < DIM; i++) {
 #ifdef DEBUG
 	printf("Searching the number (that does not exists) %d\n", elements[i]);
 #endif
-	assert(!search_skip_list(hdr, not_to_search_arr[i]));
+	assert(!search_skip_list_int(hdr, not_to_search_arr[i]));
       }
     }
 
@@ -115,6 +122,6 @@ int main(void) {
 
   printf("\n\nAll tests have passed!\n");
 
-  free_skip_list(hdr);
+  free_skip_list_int(hdr);
   return 0;
 }
