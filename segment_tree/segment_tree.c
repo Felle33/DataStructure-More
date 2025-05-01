@@ -6,7 +6,7 @@
 #include <string.h>
 
 // Initialize an empty segment tree with size leaf nodes
-Seg_tree* init_seg_tree_empty(uint32_t size, uint32_t neutral_element, uint32_t (*f)(uint32_t, uint32_t)) {
+Seg_tree* init_seg_tree_empty(uint32_t size, int neutral_element, int (*f)(int, int)) {
   assert(size > 0 && "The tree should have at least a size greater than 0");
   // size should be a power of 2
   uint32_t pow2 = 1;
@@ -21,42 +21,67 @@ Seg_tree* init_seg_tree_empty(uint32_t size, uint32_t neutral_element, uint32_t 
   sgt->size = size;
   sgt->neutral_element = neutral_element;
   sgt->f = f;
-  
-  memset(sgt->nodes, 0, sizeof(int) * size);
+
+  for(uint32_t i = 0; i < size; i++) {
+    sgt->nodes[i] = neutral_element;
+  }
   return sgt;
 }
 
+bool is_leaf(uint32_t l_tree, uint32_t r_tree) {
+  return r_tree - l_tree <= 1;
+}
+
+bool is_in_left_subtree(uint32_t fin_node, uint32_t l_tree, uint32_t r_tree) {
+  return fin_node < (l_tree + r_tree) / 2;
+}
+
+static void rec_init_seg_tree(Seg_tree* sgt, int* array, uint32_t arr_size, uint32_t cur_node, uint32_t l_tree, uint32_t r_tree) {
+  if(is_leaf(l_tree, r_tree)) {
+    if(l_tree >= arr_size) return;
+    sgt->nodes[cur_node] = array[l_tree];
+    return;
+  }
+
+  uint32_t left_node = 2 * cur_node;
+  uint32_t right_node = 2 * cur_node + 1;
+  rec_init_seg_tree(sgt, array, arr_size, left_node, l_tree, (l_tree + r_tree) / 2);
+  rec_init_seg_tree(sgt, array, arr_size, right_node, (l_tree + r_tree) / 2, r_tree);
+  
+  sgt->nodes[cur_node] = sgt->f(sgt->nodes[left_node], sgt->nodes[right_node]);
+}
+
 // Initialize a segment tree with elements of the array as leaf nodes
-Seg_tree* init_seg_tree(int* array, uint32_t size);
-
-bool is_leaf(uint32_t size_row_leaves_subtree) {
-  return size_row_leaves_subtree <= 1;
+Seg_tree* init_seg_tree(int* array, uint32_t arr_size, uint32_t neutral_element, int (*f)(int, int)) {
+  Seg_tree* sgt = init_seg_tree_empty(arr_size, neutral_element, f);
+  rec_init_seg_tree(sgt, array, arr_size, 1, 0, sgt->size / 2);
+  return sgt;
 }
 
-bool is_in_left_subtree(uint32_t node, uint32_t size_row_leaves_subtree) {
-  return node < size_row_leaves_subtree / 2;
-}
-
-static void point_update_rec(Seg_tree* sgt, uint32_t size_row_leaves_subtree, uint32_t cur_node, uint32_t fin_node, int value) {
+static void point_update_rec(Seg_tree* sgt, uint32_t cur_node, uint32_t l_tree, uint32_t r_tree, uint32_t fin_node, int value) {
   assert(cur_node > 0 && cur_node < sgt->size && "In point_update_rec the current position should be between 0 and the size of the segment tree");
 
-  if(is_leaf(size_row_leaves_subtree)) {
+  if(is_leaf(l_tree, r_tree)) {
     sgt->nodes[cur_node] = value;
     return;
   }
 
-  if(is_in_left_subtree(fin_node, size_row_leaves_subtree)) point_update_rec(sgt, size_row_leaves_subtree / 2, 2 * cur_node, fin_node, value);
-  else point_update_rec(sgt, size_row_leaves_subtree / 2, 2 * cur_node + 1, fin_node - size_row_leaves_subtree / 2, value);
+  uint32_t left_node = 2 * cur_node;
+  uint32_t right_node = 2 * cur_node + 1;
+  if(is_in_left_subtree(fin_node, l_tree, r_tree)) point_update_rec(sgt, left_node, l_tree, (l_tree + r_tree) / 2, fin_node, value);
+  else point_update_rec(sgt, right_node, (l_tree + r_tree) / 2, r_tree, fin_node, value);
 
-  sgt->nodes[cur_node] = sgt->f(sgt->nodes[2 * cur_node], sgt->nodes[2 * cur_node + 1]);
+  sgt->nodes[cur_node] = sgt->f(sgt->nodes[left_node], sgt->nodes[right_node]);
 }
 
 // Update a certain leaf node starting from 0 with the value
 void point_update_seg_tree(Seg_tree* sgt, uint32_t pos, int value) {
-  point_update_rec(sgt, sgt->size / 2, 1, pos, value);
+  point_update_rec(sgt, 1, 0, sgt->size / 2, pos, value);
 }
 
 static int range_query_rec(Seg_tree* sgt, uint32_t cur_node, uint32_t l_tree, uint32_t r_tree, uint32_t l_query, uint32_t r_query) {
+  assert(cur_node > 0 && cur_node < sgt->size && "In range_query_rec the current position should be between 0 and the size of the segment tree");
+  
   if(l_query <= l_tree && r_tree <= r_query) {
     return sgt->nodes[cur_node];
   }
