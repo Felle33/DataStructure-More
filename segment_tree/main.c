@@ -1,3 +1,5 @@
+// Tested also with the problem Dynamic Range Sum Queries of CSES https://cses.fi/problemset/task/1648/
+
 #include "segment_tree.h"
 #include <assert.h>
 #include <stdlib.h>

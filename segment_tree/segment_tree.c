@@ -28,11 +28,11 @@ Seg_tree* init_seg_tree_empty(uint32_t size, int neutral_element, int (*f)(int, 
   return sgt;
 }
 
-bool is_leaf(uint32_t l_tree, uint32_t r_tree) {
+static bool is_leaf(uint32_t l_tree, uint32_t r_tree) {
   return r_tree - l_tree <= 1;
 }
 
-bool is_in_left_subtree(uint32_t fin_node, uint32_t l_tree, uint32_t r_tree) {
+static bool is_in_left_subtree(uint32_t fin_node, uint32_t l_tree, uint32_t r_tree) {
   return fin_node < (l_tree + r_tree) / 2;
 }
 
