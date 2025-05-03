@@ -21,7 +21,6 @@ void point_update_seg_tree(Seg_tree* sgt, uint32_t pos, int value);
 
 // Given the left and the right position calculate the f(left...right)
 // right not included
-// TODO: add the function f to combine the 2 subtrees
 int range_query_seg_tree(Seg_tree* sgt, uint32_t left, uint32_t right);
 
 void free_seg_tree(Seg_tree* sgt);
